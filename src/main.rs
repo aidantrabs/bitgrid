@@ -1,5 +1,6 @@
 mod analysis;
 mod automaton;
+mod experiment;
 mod render;
 mod rule;
 
@@ -17,10 +18,20 @@ fn main() {
     let show_density = args.iter().any(|a| a == "--density");
     let show_entropy = args.iter().any(|a| a == "--entropy");
     let save_png = args.iter().any(|a| a == "--png");
+    let compare = args.iter().any(|a| a == "--compare");
     let positional: Vec<&String> = args.iter().skip(1).filter(|a| !a.starts_with("--")).collect();
 
+    if compare {
+        let width: usize = positional.first().map_or(201, |s| s.parse().expect("invalid width"));
+        let generations: usize = positional.get(1).map_or(100, |s| s.parse().expect("invalid generations"));
+        let rules = [30, 90, 110, 184, 0, 255];
+        let summaries: Vec<_> = rules.iter().map(|&r| experiment::run(r, width, generations)).collect();
+        experiment::print_table(&summaries);
+        return;
+    }
+
     let rule_number: u8 = positional.first()
-        .expect("usage: bitgrid <rule> [width] [generations] [--density] [--entropy] [--png]")
+        .expect("usage: bitgrid <rule> [width] [generations] [--density] [--entropy] [--png] [--compare]")
         .parse()
         .expect("rule must be 0-255");
 
