@@ -1,3 +1,4 @@
+mod automaton;
 mod rule;
 
 fn main() {
