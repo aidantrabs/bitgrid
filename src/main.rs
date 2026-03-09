@@ -13,10 +13,11 @@ fn render(cells: &[u8]) -> String {
 fn main() {
     let args: Vec<String> = env::args().collect();
     let show_density = args.iter().any(|a| a == "--density");
+    let show_entropy = args.iter().any(|a| a == "--entropy");
     let positional: Vec<&String> = args.iter().skip(1).filter(|a| !a.starts_with("--")).collect();
 
     let rule_number: u8 = positional.first()
-        .expect("usage: bitgrid <rule> [width] [generations] [--density]")
+        .expect("usage: bitgrid <rule> [width] [generations] [--density] [--entropy]")
         .parse()
         .expect("rule must be 0-255");
 
@@ -27,11 +28,14 @@ fn main() {
     let mut automaton = Automaton::new(rule, width);
 
     for _ in 0..generations {
+        let mut prefix = String::new();
         if show_density {
-            println!("{:.4}  {}", analysis::density(&automaton.cells), render(&automaton.cells));
-        } else {
-            println!("{}", render(&automaton.cells));
+            prefix.push_str(&format!("d={:.4} ", analysis::density(&automaton.cells)));
         }
+        if show_entropy {
+            prefix.push_str(&format!("h={:.4} ", analysis::entropy(&automaton.cells)));
+        }
+        println!("{}{}", prefix, render(&automaton.cells));
         automaton.step();
     }
 }
