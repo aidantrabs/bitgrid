@@ -12,6 +12,15 @@ impl Automaton {
         Self { cells, rule }
     }
 
+    pub fn run(&mut self, generations: usize) -> Vec<Vec<u8>> {
+        let mut history = Vec::with_capacity(generations);
+        for _ in 0..generations {
+            history.push(self.cells.clone());
+            self.step();
+        }
+        history
+    }
+
     pub fn step(&mut self) {
         let len = self.cells.len();
         let prev = self.cells.clone();
